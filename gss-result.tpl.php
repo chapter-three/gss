@@ -61,7 +61,7 @@
  * @see template_preprocess_search_result()
  * @see template_process()
  */
-?>blabla
+?>
 <li class="<?php print $classes; ?>"<?php print $attributes; ?>>
   <?php print drupal_render($title_prefix); ?>
   <h3 class="gss-title"<?php print $title_attributes; ?>>

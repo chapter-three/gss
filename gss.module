@@ -167,9 +167,6 @@ function gss_search_results($query) {
   // Get pager
   $output['pager'] = $gss->GetPager($link);
   
-  
-  
-  
   return $output;
 }
 /**
@@ -291,23 +288,23 @@ function gss_search_form_submit($form, &$form_state) {
 /**
  * Implements hook_search_page().
  */
-function gss_search_page($results) {
-  $head = $results['head'];
-  unset($results['head']);
-  $pager = $results['pager'];
-  unset($results['pager']);
-  $output['prefix']['#markup'] = $head . '<ol class="google-search-results">';
-  foreach ($results as $entry) {
-    $output[] = array(
-      '#theme' => 'gss_result', 
-      '#result' => $entry, 
-      '#module' => 'gss',
-    );
-  }
-  $output['suffix']['#markup'] = '</ol>' . $pager;
-  drupal_set_title(t('Search results'));
-  return $output;
-}
+//function gss_search_page($results) {
+//  $head = $results['head'];
+//  unset($results['head']);
+//  $pager = $results['pager'];
+//  unset($results['pager']);
+//  $output['prefix']['#markup'] = $head . '<ol class="google-search-results">';
+//  foreach ($results as $entry) {
+//    $output[] = array(
+//      '#theme' => 'gss_result', 
+//      '#result' => $entry, 
+//      '#module' => 'gss',
+//    );
+//  }
+//  $output['suffix']['#markup'] = '</ol>' . $pager;
+//  drupal_set_title(t('Search results'));
+//  return $output;
+//}
 
 
 
@@ -321,30 +318,23 @@ function gss_search($op = 'search', $keys = NULL) {
   switch ($op) {
     case 'name':
       return t('Google Search');
-
+      break;
 
     case 'search':
       $page = isset($_GET['page']) ? $_GET['page'] : 0;
-
-      
       $query = gss_build_query($keys);
-      
-      
-      $results = gss_search_results($keys);
-      
-      
-      $results_output = theme('gss_results', $results);
-      
-      
-      return $results_output;
-      
-      
-      
-      
+      return gss_search_results($keys);      
       break;
-  } // switch
+  }
 }
 
+
+/**
+ * Implementation of hook_search_page().
+ */
+function gss_search_page($results) {
+  return theme('gss_results', $results);
+}
 
 
 
