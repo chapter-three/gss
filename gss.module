@@ -7,7 +7,7 @@
 function gss_menu() {
   $items = array();
   
-  $items['admin/config/search/gss'] = array(
+  $items['admin/settings/gss'] = array(
     'title' => 'Google Site Search',
     'description' => 'Google Site Search settings.',
     'page callback' => 'drupal_get_form',
@@ -15,14 +15,14 @@ function gss_menu() {
     'access arguments' => array('administer site settings'),
   );
   
-  $items['google-search'] = array(
+  $items['search/google-search'] = array(
     'title' => t('Search'),
     'page callback' => 'search',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
   
-  $items['google-search/%'] = array(
+  $items['search/google-search/%'] = array(
     'title' => t('Search results'),
     'page callback' => 'gss_search_results',
     'page arguments' => array(1),
@@ -38,12 +38,12 @@ function gss_menu() {
 function gss_theme($existing, $type, $theme, $path) {
   return array(
     'gss_result' => array(
-      'variables' => array('result' => NULL, 'module' => NULL),
+      'arguments' => array('result' => NULL, 'module' => NULL),
       'file' => 'gss.theme.inc',
       'template' => 'gss-result',
     ),
     'gss_results' => array(
-      'variables' => array('results' => NULL, 'module' => NULL),
+      'arguments' => array('results' => NULL, 'module' => NULL),
       'file' => 'gss.theme.inc',
       'template' => 'gss-results',
     ),
@@ -109,7 +109,6 @@ function gss_block($op = 'list', $delta = 0, $edit = array()) {
 * Search results page.
 */
 function gss_search_results($query) {
-
   // Include dependencies.
   module_load_include('inc', 'gss', 'includes/GoogleSiteSearch');
   // Make query safe.
@@ -160,13 +159,16 @@ function gss_search_results($query) {
   }
   // Build URL to the pager  
   $destination = drupal_get_destination();  
-  $url_parse = drupal_parse_url($destination['destination']);
+  $url_parse = parse_url($destination['destination']);
   $url_parse['query']['page'] = '';
   $link = url($url_parse['path'], $url_parse);
   // Get searrch head
   $output['head'] = $gss->GetSearchHead();
   // Get pager
   $output['pager'] = $gss->GetPager($link);
+  
+  
+  
   
   return $output;
 }
@@ -184,6 +186,9 @@ function _gss_get_link_class($result) {
     return 'filetype-page';
   }
 }
+
+
+
 /**
  * Implements hook_search_execute().
  */
@@ -193,6 +198,11 @@ function gss_search_execute($keys = NULL, $conditions = NULL) {
   }
   return gss_search_results($keys);  
 }
+
+
+
+
+
 /**
  * Implements hook_search_info().
  */
@@ -223,7 +233,7 @@ function gss_advanced_settings() {
   global $language;
   $settings = array();
   foreach (array('cr', 'gl', 'hl', 'ie', 'lr', 'oe', 'safe') as $parameter) {
-    if ($setting = variable_get("google_cse_$parameter", '')) {
+    if ($setting = variable_get("gss_$parameter", '')) {
       $settings[$parameter] = $setting;
     }
   }
@@ -242,21 +252,32 @@ function gss_build_query($keys, $sitesearch = NULL, $here = TRUE) {
   return array(
     'query' => $keys,
     'cx' => variable_get('gss_api_key', ''),
-    'cof' => $here ? variable_get('google_cse_cof_here', 'FORID:11') : variable_get('google_cse_cof_google', 'FORID:0'),
+    'cof' => $here ? variable_get('gss_cof_here', 'FORID:11') : variable_get('gss_cof_google', 'FORID:0'),
     'sitesearch' => isset($sitesearch) ? $sitesearch : '',
   ) + gss_advanced_settings();
 }
 /**
  * Adds custom submit handler for search form.
  */
-function gss_form_search_form_alter(&$form, &$form_state, $form_id) {
-  if ($form['module']['#value'] == 'gss') {
+function gss_form_alter(&$form, &$form_state, $form_id) {
+  
+  
+
+  if (($form_id == 'search_form' || $form_id == 'search_block_form') && $form['module']['#value'] == 'node') {
+    
+
+    
     if (variable_get('gss_results_gadget', 1)) {
       $form['basic']['op']['#suffix'] = theme('gss_results_gadget');
     }
     $form['#submit'][] = 'gss_search_form_submit';
-    $form['#attributes']['class'][] = 'gss';
+    $form['#attributes']['class'] = 'gss';
   }
+  
+  
+  
+  
+  
 }
 /**
 * Submit handler.
@@ -264,7 +285,8 @@ function gss_form_search_form_alter(&$form, &$form_state, $form_id) {
 function gss_search_form_submit($form, &$form_state) {
   $keys = $form_state['values']['processed_keys'];
   $sitesearch = isset($form_state['values']['sitesearch']) ? $form_state['values']['sitesearch'] : NULL;
-  $form_state['redirect'] = array($form_state['redirect'], array('query' => google_cse_build_query($keys, $sitesearch)), 301);
+    
+  $form_state['redirect'] = array('search/google-search/'. $keys, array('query' => gss_build_query($keys, $sitesearch)), 301);
 }
 /**
  * Implements hook_search_page().
@@ -288,6 +310,40 @@ function gss_search_page($results) {
 }
 
 
+
+
+/**
+ * Implementation of hook_search().
+ */
+function gss_search($op = 'search', $keys = NULL) {
+
+  
+  switch ($op) {
+    case 'name':
+      return t('Google Search');
+
+
+    case 'search':
+      $page = isset($_GET['page']) ? $_GET['page'] : 0;
+
+      
+      $query = gss_build_query($keys);
+      
+      
+      $results = gss_search_results($keys);
+      
+      
+      $results_output = theme('gss_results', $results);
+      
+      
+      return $results_output;
+      
+      
+      
+      
+      break;
+  } // switch
+}
 
 
 
