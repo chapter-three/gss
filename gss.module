@@ -164,30 +164,33 @@ function gss_search_results($query) {
   
   return $output;
 }
+
+
+
 /**
 * Get class names for result item.
 */
-function _gss_get_link_class($result) {
-  $file_types = array('pdf', 'doc', 'docx', 'ppt', 'pptx', 'odt');
-  $file = basename($result['url']);
-  $ext = drupal_strtolower(substr($file, strrpos($file, '.') + 1));
-  if (in_array($ext, $file_types)) {
-    return 'filetype-'. $ext;
-  }
-  else {
-    return 'filetype-page';
-  }
-}
+//function _gss_get_link_class($result) {
+//  $file_types = array('pdf', 'doc', 'docx', 'ppt', 'pptx', 'odt');
+//  $file = basename($result['url']);
+//  $ext = drupal_strtolower(substr($file, strrpos($file, '.') + 1));
+//  if (in_array($ext, $file_types)) {
+//    return 'filetype-'. $ext;
+//  }
+//  else {
+//    return 'filetype-page';
+//  }
+//}
 
 
 
 /**
  * Search conditions callback.
  */
-function gss_conditions_callback($keys) {
-  $conditions = array();
-  return $conditions;
-}
+//function gss_conditions_callback($keys) {
+//  $conditions = array();
+//  return $conditions;
+//}
 /**
  * Return the Google Site Search tab title, either a setting or a translation.
  */

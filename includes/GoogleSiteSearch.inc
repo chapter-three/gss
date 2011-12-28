@@ -148,6 +148,17 @@ class GoogleSiteSearch {
 
     // fetch results from google
     $results = simplexml_load_file($url);
+    
+    
+    
+    
+    
+    print_r($results);
+    
+    
+    
+    
+    
 
     if ($results !== false) {
       if (!isset($results->RES->M)) {
