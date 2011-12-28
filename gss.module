@@ -157,15 +157,10 @@ function gss_search_results($query) {
         'snippet' => t('No results'),
         );
   }
-  // Build URL to the pager  
-  $destination = drupal_get_destination();  
-  $url_parse = parse_url($destination['destination']);
-  $url_parse['query']['page'] = '';
-  $link = url($url_parse['path'], $url_parse);
   // Get searrch head
   $output['head'] = $gss->GetSearchHead();
   // Get pager
-  $output['pager'] = $gss->GetPager($link);
+  $output['pager'] = $gss->GetPager();
   
   return $output;
 }

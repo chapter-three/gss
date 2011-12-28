@@ -186,6 +186,7 @@ class GoogleSiteSearch {
    * @return string The pager HTML code.
    */
   public function GetPager($link = '?page=') {
+
     // get total pages  
     $totalPages = $this->GetTotalPages();
     $currentPage = $this->GetCurrentPage();
