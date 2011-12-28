@@ -1,6 +1,6 @@
 name = Google Site Search
 description = Provides integration with Google Site Search.
-core = 7.x
+core = 6.x
 
 files[] = gss.module
 files[] = gss.theme.inc
