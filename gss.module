@@ -15,20 +15,20 @@ function gss_menu() {
     'access arguments' => array('administer site settings'),
   );
   
-  $items['search/google-search'] = array(
-    'title' => t('Search'),
-    'page callback' => 'search',
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
-  
-  $items['search/google-search/%'] = array(
-    'title' => t('Search results'),
-    'page callback' => 'gss_search_results',
-    'page arguments' => array(1),
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
+//  $items['search/gss'] = array(
+//    'title' => t('Search'),
+//    'page callback' => 'gss_view',
+//    'access arguments' => array('access content'),
+//    'type' => MENU_CALLBACK,
+//  );
+//  
+//  $items['search/gss/%'] = array(
+//    'title' => t('Search results'),
+//    'page callback' => 'gss_search_results',
+//    'page arguments' => array(1),
+//    'access arguments' => array('access content'),
+//    'type' => MENU_CALLBACK,
+//  );
   
   return $items;
 }
@@ -187,30 +187,6 @@ function _gss_get_link_class($result) {
 
 
 /**
- * Implements hook_search_execute().
- */
-function gss_search_execute($keys = NULL, $conditions = NULL) {
-  if ($keys && !isset($_GET['query'])) {
-    drupal_goto('search/google-search/'. $keys, array('query' => gss_build_query($keys)), 301);
-  }
-  return gss_search_results($keys);  
-}
-
-
-
-
-
-/**
- * Implements hook_search_info().
- */
-function gss_search_info() {
-  return array(
-    'title' => gss_results_tab(),
-    'path' => 'google-search',
-    'conditions_callback' => 'gss_conditions_callback',
-  );
-}
-/**
  * Search conditions callback.
  */
 function gss_conditions_callback($keys) {
@@ -220,9 +196,10 @@ function gss_conditions_callback($keys) {
 /**
  * Return the Google Site Search tab title, either a setting or a translation.
  */
-function gss_results_tab() {
-  return ($var = variable_get('gss_results_tab', '')) ? $var : t('Google Search');
-}
+//function gss_results_tab() {
+//  return ($var = variable_get('gss_results_tab', '')) ? $var : t('Google Search');
+//}
+
 /**
  * Returns an array of any advanced settings which have been set.
  */
@@ -257,64 +234,19 @@ function gss_build_query($keys, $sitesearch = NULL, $here = TRUE) {
  * Adds custom submit handler for search form.
  */
 function gss_form_alter(&$form, &$form_state, $form_id) {
-  
-  
-
-  if (($form_id == 'search_form' || $form_id == 'search_block_form') && $form['module']['#value'] == 'node') {
-    
-
-    
+  if ($form_id == 'search_form' || $form_id == 'search_block_form' || $form_id == 'search_theme_form') {
     if (variable_get('gss_results_gadget', 1)) {
       $form['basic']['op']['#suffix'] = theme('gss_results_gadget');
     }
     $form['#submit'][] = 'gss_search_form_submit';
     $form['#attributes']['class'] = 'gss';
   }
-  
-  
-  
-  
-  
 }
-/**
-* Submit handler.
-*/
-function gss_search_form_submit($form, &$form_state) {
-  $keys = $form_state['values']['processed_keys'];
-  $sitesearch = isset($form_state['values']['sitesearch']) ? $form_state['values']['sitesearch'] : NULL;
-    
-  $form_state['redirect'] = array('search/google-search/'. $keys, array('query' => gss_build_query($keys, $sitesearch)), 301);
-}
-/**
- * Implements hook_search_page().
- */
-//function gss_search_page($results) {
-//  $head = $results['head'];
-//  unset($results['head']);
-//  $pager = $results['pager'];
-//  unset($results['pager']);
-//  $output['prefix']['#markup'] = $head . '<ol class="google-search-results">';
-//  foreach ($results as $entry) {
-//    $output[] = array(
-//      '#theme' => 'gss_result', 
-//      '#result' => $entry, 
-//      '#module' => 'gss',
-//    );
-//  }
-//  $output['suffix']['#markup'] = '</ol>' . $pager;
-//  drupal_set_title(t('Search results'));
-//  return $output;
-//}
-
-
-
 
 /**
  * Implementation of hook_search().
  */
 function gss_search($op = 'search', $keys = NULL) {
-
-  
   switch ($op) {
     case 'name':
       return t('Google Search');
@@ -328,6 +260,26 @@ function gss_search($op = 'search', $keys = NULL) {
   }
 }
 
+/**
+* Submit handler.
+*/
+function gss_search_form_submit($form, &$form_state) {
+  
+  $form_id = $form_state['values']['form_id'];
+  
+  $keys = $form_state['values'][$form_id];
+  
+
+  if (!$keys) {
+    
+    $keys = $form_state['values']['processed_keys'];
+  }
+  
+  
+//  $sitesearch = isset($form_state['values']['sitesearch']) ? $form_state['values']['sitesearch'] : NULL;
+  $form_state['redirect'] = array('search/gss/'. $keys);
+}
+
 
 /**
  * Implementation of hook_search_page().
@@ -337,7 +289,33 @@ function gss_search_page($results) {
 }
 
 
+/**
+ * Implementation of hook_menu_alter().
+ */
+function gss_menu_alter(&$menu) {
+  
+  
+  if (isset($menu['search/gss/%menu_tail'])) {
+//    $menu['search']['page callback'] = 'gss_view';
+//    $menu['search/gss/%menu_tail']['page callback'] = 'gss_view';
+  }
 
+//  print_r($menu);
+  
+}
+
+
+/**
+ * Re-implementation of search_view().
+ */
+//function gss_view($type = NULL) {
+//  if (empty($type)) {
+//    // Note: search/X can not be a default tab because it would take on the
+//    // path of its parent (search). It would prevent remembering keywords when
+//    // switching tabs. This is why we drupal_goto to it from the parent instead.
+//    drupal_goto('search/gss');
+//  }
+//}
 
 
 
