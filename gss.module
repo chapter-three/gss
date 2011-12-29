@@ -15,21 +15,6 @@ function gss_menu() {
     'access arguments' => array('administer site settings'),
   );
   
-//  $items['search/gss'] = array(
-//    'title' => t('Search'),
-//    'page callback' => 'gss_view',
-//    'access arguments' => array('access content'),
-//    'type' => MENU_CALLBACK,
-//  );
-//  
-//  $items['search/gss/%'] = array(
-//    'title' => t('Search results'),
-//    'page callback' => 'gss_search_results',
-//    'page arguments' => array(1),
-//    'access arguments' => array('access content'),
-//    'type' => MENU_CALLBACK,
-//  );
-  
   return $items;
 }
 /**
@@ -65,23 +50,19 @@ function gss_settings() {
   $form['gss_language'] = array(
     '#title' => t('Language'),
     '#type' => 'textfield',
-    '#description' => t('The language to search. Write the language code with two letters. Ex: for "english", write "en"; for "Chinese (Simplified)"'),
-    '#default_value' => variable_get('gss_language', ''),
+    '#description' => t('The language to search. Write the language code with two letters.<br />Ex: for "english", input "en"; for "Chinese (Simplified)", input "zh-CN".'),
+    '#default_value' => variable_get('gss_language', FALSE),
     '#size' => 5,
     '#max_length' => 5,
   );
   $form['gss_default_language'] = array(
-    '#title' => t('Language'),
+    '#title' => t('Use current site language'),
     '#type' => 'checkbox',
-    '#description' => t('The language to search. Write the language code with two letters. Ex: for "english", write "en".'),
+    '#description' => t('This settings will override the language above.'),
     '#default_value' => variable_get('gss_default_language', FALSE),
     '#size' => 2,
     '#max_length' => 2,
   );
-  
-  
-  
-  
   $form['gss_page_size'] = array(
     '#title' => t('Page size'),
     '#type' => 'textfield',
@@ -192,70 +173,6 @@ function gss_search_results($query) {
   
   return $output;
 }
-
-
-
-/**
-* Get class names for result item.
-*/
-//function _gss_get_link_class($result) {
-//  $file_types = array('pdf', 'doc', 'docx', 'ppt', 'pptx', 'odt');
-//  $file = basename($result['url']);
-//  $ext = drupal_strtolower(substr($file, strrpos($file, '.') + 1));
-//  if (in_array($ext, $file_types)) {
-//    return 'filetype-'. $ext;
-//  }
-//  else {
-//    return 'filetype-page';
-//  }
-//}
-
-
-
-/**
- * Search conditions callback.
- */
-//function gss_conditions_callback($keys) {
-//  $conditions = array();
-//  return $conditions;
-//}
-/**
- * Return the Google Site Search tab title, either a setting or a translation.
- */
-//function gss_results_tab() {
-//  return ($var = variable_get('gss_results_tab', '')) ? $var : t('Google Search');
-//}
-
-/**
- * Returns an array of any advanced settings which have been set.
- */
-//function gss_advanced_settings() {
-//  global $language;
-//  $settings = array();
-//  foreach (array('cr', 'gl', 'hl', 'ie', 'lr', 'oe', 'safe') as $parameter) {
-//    if ($setting = variable_get("gss_$parameter", '')) {
-//      $settings[$parameter] = $setting;
-//    }
-//  }
-//  if (variable_get('gss_locale_hl', '')) {
-//    $settings['hl'] = $language->language;
-//  }
-//  if (variable_get('gss_locale_lr', '')) {
-//    $settings['lr'] = 'lang_'. $language->language;
-//  }
-//  return $settings;
-//}
-/**
- * Builds a query array based on Google Site Search settings.
- */
-//function gss_build_query($keys, $sitesearch = NULL, $here = TRUE) {
-//  return array(
-//    'query' => $keys,
-//    'cx' => variable_get('gss_api_key', ''),
-//    'cof' => $here ? variable_get('gss_cof_here', 'FORID:11') : variable_get('gss_cof_google', 'FORID:0'),
-//    'sitesearch' => isset($sitesearch) ? $sitesearch : '',
-//  ) + gss_advanced_settings();
-//}
 /**
  * Adds custom submit handler for search form.
  */
@@ -268,81 +185,39 @@ function gss_form_alter(&$form, &$form_state, $form_id) {
     $form['#attributes']['class'] = 'gss';
   }
 }
-
 /**
  * Implementation of hook_search().
  */
 function gss_search($op = 'search', $keys = NULL) {
+  
   switch ($op) {
     case 'name':
-      return t('Google Search');
+      $gss_results_tab = variable_get('gss_results_tab', FALSE)? variable_get('gss_results_tab', ''): 'Google Search';
+      return $gss_results_tab;
       break;
 
     case 'search':
       $page = isset($_GET['page']) ? $_GET['page'] : 0;
-//      $query = gss_build_query($keys);
       return gss_search_results($keys);     
       break;
   }
 }
-
 /**
 * Submit handler.
 */
 function gss_search_form_submit($form, &$form_state) {
-  
   $form_id = $form_state['values']['form_id'];
-  
   $keys = $form_state['values'][$form_id];
-  
-
   if (!$keys) {
-    
     $keys = $form_state['values']['processed_keys'];
   }
-  
-  
-//  $sitesearch = isset($form_state['values']['sitesearch']) ? $form_state['values']['sitesearch'] : NULL;
   $form_state['redirect'] = array('search/gss/'. $keys);
 }
-
-
 /**
  * Implementation of hook_search_page().
  */
 function gss_search_page($results) {
   return theme('gss_results', $results);
 }
-
-
-/**
- * Implementation of hook_menu_alter().
- */
-function gss_menu_alter(&$menu) {
-  
-  
-  if (isset($menu['search/gss/%menu_tail'])) {
-//    $menu['search']['page callback'] = 'gss_view';
-//    $menu['search/gss/%menu_tail']['page callback'] = 'gss_view';
-  }
-
-//  print_r($menu);
-  
-}
-
-
-/**
- * Re-implementation of search_view().
- */
-//function gss_view($type = NULL) {
-//  if (empty($type)) {
-//    // Note: search/X can not be a default tab because it would take on the
-//    // path of its parent (search). It would prevent remembering keywords when
-//    // switching tabs. This is why we drupal_goto to it from the parent instead.
-//    drupal_goto('search/gss');
-//  }
-//}
-
-
 
 
