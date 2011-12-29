@@ -14,6 +14,12 @@ class GoogleSiteSearch {
   private $key = null;
 
   /**
+   * The language to use in the search.
+   * @var string
+   */
+  private $language = null;
+  
+  /**
    * The search query.
    * @var string
    */
@@ -73,6 +79,16 @@ class GoogleSiteSearch {
     return $this->key;
   }
 
+  /**
+   * Set the language.
+   *
+   * @param str $language The new language.
+   * @return void
+   */
+  public function SetLanguage($language) {
+    $this->language = $language;
+  }
+  
   /**
    * Set the page size.
    *
@@ -142,24 +158,20 @@ class GoogleSiteSearch {
 
     // calculate start postition based on page
     $startPos = ($this->currentPage - 1) * $this->pageSize;
+    
+    if ($this->language) {
+     $language = "&lr=lang_{$this->language}"; 
+    }
+    else {
+      $language = null;
+    }
 
     // assemble url
-    $url = "http://www.google.com/search?start={$startPos}&num={$this->pageSize}&lr=lang_sv&client=google-csbe&output=xml_no_dtd&cx={$this->key}&q={$this->query}";
+    $url = "http://www.google.com/search?start={$startPos}&num={$this->pageSize}{$language}&client=google-csbe&output=xml_no_dtd&cx={$this->key}&q={$this->query}";
 
     // fetch results from google
     $results = simplexml_load_file($url);
     
-    
-    
-    
-    
-    print_r($results);
-    
-    
-    
-    
-    
-
     if ($results !== false) {
       if (!isset($results->RES->M)) {
         // no results, return null
