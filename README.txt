@@ -7,7 +7,7 @@ Contents of this file
  * About Google Site Search module
  * Use Google Site Search
    - Module settings
-   - Search settings
+   - Module behavior
  
 
 *** About Drupal
@@ -38,15 +38,12 @@ This requires "Site Search Edition" (paid version of Google's Custom Search).
 *** Use Google Site Search
 ---------------------------------------
 - Module settings
-  1. Go to Configuration > Search and metadata > Google Site Search.
+  1. Go to Admin > Settings > Google Site Search.
   2. Put your Google API key in the "API Key" field. Note that the key
      must to be "Site Search Edition" (paid version of Google's Custom Search).
 
-- Search settings
-  1. Go to Configuration > Search and metadata > Search settings.
-  2. In the Active search modules group, enable "Google Site Search"
-  3. If you want, you can set the Google Site Search as default in
-     "Default search module" in the same page.
+- Module behavior
+  If the module is enabled, it will take over the search functionality on the site.
 
  
 ---------------------------------------
