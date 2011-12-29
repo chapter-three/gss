@@ -43,7 +43,8 @@ This requires "Site Search Edition" (paid version of Google's Custom Search).
      must to be "Site Search Edition" (paid version of Google's Custom Search).
 
 - Module behavior
-  If the module is enabled, it will take over the search functionality on the site.
+  If the module is enabled and an API key is given, the module will take over
+  the search functionality on the site.
 
  
 ---------------------------------------
