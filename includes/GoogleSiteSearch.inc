@@ -32,6 +32,12 @@ class GoogleSiteSearch {
   private $pageSize = 20;
 
   /**
+   * Pager size, number of pages to show in the pager.
+   * @var int
+   */
+  private $pagerSize = 20;
+
+  /**
    * Current page in the results.
    * @var int
    */
@@ -100,6 +106,16 @@ class GoogleSiteSearch {
   }
 
   /**
+   * Set the pager size.
+   *
+   * @param int $pagerSize The new pager size.
+   * @return void
+   */
+  public function SetPagerSize($pagerSize) {
+    $this->pagerSize = $pagerSize;
+  }
+
+  /**
    * Get current page size.
    *
    * @return int The current page size.
@@ -108,6 +124,14 @@ class GoogleSiteSearch {
     return $this->pageSize;
   }
 
+  /**
+   * Get current pager size.
+   *
+   * @return int The current pager size.
+   */
+  public function GetPagerSize() {
+    return $this->pagerSize;
+  }
   /**
    * Get current page in the results.
    *
@@ -213,21 +237,41 @@ class GoogleSiteSearch {
     // get total pages  
     $totalPages = $this->GetTotalPages();
     $currentPage = $this->GetCurrentPage();
-
+    $pagerSize = $this->GetPagerSize();
+    $halfPagerSize = $pagerSize / 2;
+    
     if ($totalPages < 2) {
       return;
     }    
     
-    $html = "<div class=\"item-list\"><ul class=\"pager\">\n";
+    $html = "<div class=\"item-list google-search-pager\"><ul class=\"pager\">\n";
 
-    $totalPages = $totalPages > 20 ? 20 : $totalPages;
+    // Limit the number of pages to 50
+    $totalPages = $totalPages > 50 ? 50 : $totalPages;
     
     if ($currentPage > 1) {
       $link_page = $link . ($currentPage - 1);
-      $html .= "\t<li class=\"pager-item\"><a href=\"{$link_page}\">" . t('‹ previous') . "</a></li>\n";
+      $html .= "\t<li class=\"pager-previous\"><a href=\"{$link_page}\">" . t('‹ previous') . "</a></li>\n";
     }
     
-    for ($i = 1; $i <= $totalPages; $i++) {
+    // Defines the start and finish of the pager
+    $pagerStart = $currentPage - (round($pagerSize / 2) - 1);
+    $pagerFinish = $currentPage + (round($pagerSize / 2) - 1);
+    
+    // Start values, if $pagerStart is negative
+    if ($pagerStart < 1) {
+      $pagerStart = 1;
+      $pagerFinish = $pagerSize > $totalPages ? $totalPages : $pagerSize;
+    }
+    
+    // Limit $pagerFinish to the same as $totalPages
+    $pagerFinish = $pagerFinish > $totalPages ? $totalPages : $pagerFinish;
+    
+    if ($pagerStart > 1) {
+      $html .= "\t<li class=\"pager-ellipsis\">...</li>\n";
+    }
+    
+    for ($i = $pagerStart; $i <= $pagerFinish; $i++) {
       if ($i != $currentPage) {
         $link_page = $link . $i;
         $html .= "\t<li class=\"pager-item\"><a href=\"{$link_page}\">{$i}</a></li>\n";
@@ -237,9 +281,13 @@ class GoogleSiteSearch {
       }
     }
     
+    if ($pagerFinish < $totalPages) {
+      $html .= "\t<li class=\"pager-ellipsis\">...</li>\n";
+    }
+    
     if ($currentPage < intval($totalPages)) {
       $link_page = $link . ($currentPage + 1);
-      $html .= "\t<li class=\"pager-item\"><a href=\"{$link_page}\">" . t('next ›') . "</a></li>\n";
+      $html .= "\t<li class=\"pager-next\"><a href=\"{$link_page}\">" . t('next ›') . "</a></li>\n";
     }
     
     // close ol
