@@ -12,7 +12,7 @@ function gss_menu() {
     'description' => 'Google Site Search settings.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('gss_settings'),
-    'access arguments' => array('administer site settings'),
+    'access arguments' => array('administer site configuration'),
   );
   
   return $items;
@@ -108,7 +108,7 @@ function gss_settings() {
     '#title' => t('Pager size'),
     '#type' => 'textfield',
     '#description' => t('Number of pages to show in the pager. Imput ONLY odd numbers like 5, 7 or 9 and NOT 6, 7 or 9, for example.'),
-    '#default_value' => variable_get('gss_pager_size', 20),
+    '#default_value' => variable_get('gss_pager_size', 19),
     '#size' => 5,
     '#max_length' => 5,
   );
@@ -132,7 +132,7 @@ function gss_search_results($query) {
   $results = null;
   // Set the number of results per page.
   $gss->SetPageSize(variable_get('gss_page_size', 20));
-  // Set the number of pages in the pager.
+  // Set the number of pages to show in the pager.
   $gss->SetPagerSize(variable_get('gss_pager_size', 20));
   // Set the search language
   $default_lang = variable_get('gss_default_language', FALSE);

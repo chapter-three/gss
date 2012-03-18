@@ -35,7 +35,7 @@ class GoogleSiteSearch {
    * Pager size, number of pages to show in the pager.
    * @var int
    */
-  private $pagerSize = 20;
+  private $pagerSize = 19;
 
   /**
    * Current page in the results.
