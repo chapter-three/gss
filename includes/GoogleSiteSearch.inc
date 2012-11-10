@@ -26,6 +26,12 @@ class GoogleSiteSearch {
   private $query = null;
 
   /**
+   * Extra parameters to be passed onto Google CSE.
+   * @var array
+   */
+  private $extraParams = null;
+
+  /**
    * Page size, number of results per page.
    * @var int
    */
@@ -60,10 +66,11 @@ class GoogleSiteSearch {
    *
    * @param string
    */
-  public function __construct($query, $key = null, $pageSize = 20) {
+  public function __construct($query, $key = null, $pageSize = 20, $extraParams = null) {
     $this->query = $query;
     $this->key = $key;
     $this->pageSize = $pageSize;
+    $this->extraParams = $extraParams;
   }
 
   /**
@@ -169,6 +176,15 @@ class GoogleSiteSearch {
   }
 
   /**
+   * Get query extra parameters array.
+   *
+   * @return array The extra parameters to CSE.
+   */
+  public function GetExtraParameters() {
+    return $this->extraParams;
+  }
+
+  /**
    * Get search results.
    *
    * @param string $query The search query.
@@ -190,8 +206,16 @@ class GoogleSiteSearch {
       $language = null;
     }
 
+    // prepare query parameters for URL assembly
+    if (count($this->extraParams) > 0) {
+      $extraParamsQuery = '&' . http_build_query($this->extraParams);
+    }
+    else {
+      $extraParamsQuery = null;
+    }
+
     // assemble url
-    $url = "http://www.google.com/search?start={$startPos}&num={$this->pageSize}{$language}&client=google-csbe&output=xml_no_dtd&cx={$this->key}&q={$this->query}";
+    $url = "http://www.google.com/search?start={$startPos}&num={$this->pageSize}{$language}&client=google-csbe&output=xml_no_dtd&cx={$this->key}&q={$this->query}{$extraParamsQuery}";
 
     // fetch results from google
     $results = simplexml_load_file($url);
