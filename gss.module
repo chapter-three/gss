@@ -113,6 +113,13 @@ function gss_settings() {
     '#max_length' => 5,
   );
   
+  $form['miscellaneous']['gss_labels'] = array(
+    '#title' => t('Enable Google Search labels'),
+    '#type' => 'checkbox',
+    '#description' => t('Show "facets" and "labels" if available on the search result.'),
+    '#default_value' => variable_get('gss_labels', TRUE),
+  );
+  
   return system_settings_form($form);
 }
 /**
@@ -164,9 +171,11 @@ function gss_search_results($query) {
     $output = array();
     // Loop results.
     foreach ($results as $result) {
-      $output[] = array(
+	  $result['thumbnail_url'] = isset($result['thumbnail_url']) ? $result['thumbnail_url'] : ''; //just to avoid warnings in the log if not set
+    $output[] = array(
         'link' => urldecode($result['url']),
         'title' => $result['title'],
+        'thumbnail_url' => $result['thumbnail_url'],
         'snippet' => $result['description'],
         );
     }
