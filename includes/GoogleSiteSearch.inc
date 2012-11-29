@@ -2,6 +2,8 @@
 
 // $Id$
 
+// Defines the Google site search base url.
+define('GSS_BASE_URL', 'http://www.google.com/search');
 /**
  * Class for interaction with Google Site Search.
  */
@@ -11,25 +13,25 @@ class GoogleSiteSearch {
    * The Google key to use.
    * @var string
    */
-  private $key = null;
+  private $key = NULL;
 
   /**
    * The language to use in the search.
    * @var string
    */
-  private $language = null;
+  private $language = NULL;
 
   /**
    * The search query.
    * @var string
    */
-  private $query = null;
+  private $query = NULL;
 
   /**
    * Extra parameters to be passed onto Google CSE.
    * @var array
    */
-  private $extraParams = null;
+  private $extraParams = NULL;
 
   /**
    * Page size, number of results per page.
@@ -47,7 +49,7 @@ class GoogleSiteSearch {
    * Current page in the results.
    * @var int
    */
-  private $currentPage = null;
+  private $currentPage = NULL;
 
   /**
    * Total results for a search.
@@ -59,14 +61,14 @@ class GoogleSiteSearch {
    * The search results return from Google.
    * @var SimpleXml
    */
-  private $searchResultsXml = null;
+  private $searchResultsXml = NULL;
 
   /**
    * Create a new instance of GoogleSiteSearch.
    *
    * @param string
    */
-  public function __construct($query, $key = null, $pageSize = 20, $extraParams = null) {
+  public function __construct($query, $key = NULL, $pageSize = 20, $extraParams = NULL) {
     $this->query = $query;
     $this->key = $key;
     $this->pageSize = $pageSize;
@@ -204,7 +206,7 @@ class GoogleSiteSearch {
       $language = "&lr=lang_{$this->language}";
     }
     else {
-      $language = null;
+      $language = NULL;
     }
 
     // prepare query parameters for URL assembly
@@ -212,19 +214,32 @@ class GoogleSiteSearch {
       $extraParamsQuery = '&' . http_build_query($this->extraParams);
     }
     else {
-      $extraParamsQuery = null;
+      $extraParamsQuery = NULL;
     }
-
-    // assemble url
-    $url = "http://www.google.com/search?start={$startPos}&num={$this->pageSize}{$language}&client=google-csbe&output=xml_no_dtd&cx={$this->key}&q={$this->query}{$extraParamsQuery}";
-
     // fetch results from google
-    $results = simplexml_load_file($url);
+    $url_response = drupal_http_request(url(GSS_BASE_URL,
+      array('query' => drupal_query_string_encode(
+        array(
+            'start' => $startPos,
+            'num' => $this->pageSize,
+            $language,
+            'client' => 'google-csbe',
+            'output' => 'xml_no_dtd',
+            'cx' => $this->key,
+            'q' => $this->query,
+            $extraParamsQuery,
+          )
+      ) )));
 
-    if ($results !== false) {
+    if ($url_response->error) {
+      return NULL;
+    }
+    $results = simplexml_load_string($url_response->data);
+
+    if ($results !== FALSE) {
       if (!isset($results->RES->M)) {
-        // no results, return null
-        return null;
+        // no results, return NULL
+        return NULL;
       }
       else {
         // save total results
@@ -376,7 +391,7 @@ class GoogleSiteSearch {
       // checking which one is the active tab
       $active_html_first_element = "";
       $active_html_others = "";
-      if (strpos($this->query, "more:") === false) { //there is no faceted search
+      if (strpos($this->query, "more:") === FALSE) { //there is no faceted search
         $active_html_first_element = 'class="active"';   //then the first element is active
         $term_from_query = "";
       }
