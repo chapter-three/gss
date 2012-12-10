@@ -403,7 +403,7 @@ class GoogleSiteSearch {
       // first item will always be the original query
       $html .= '<li>' . '<a ' . $active_html_first_element . ' href=' . urlencode($this->query) . '>' . t('All results') . '</a>' . '</li>';
 
-      //loop to create all remaining categorized tabs / queries
+      // loop to create all remaining categorized tabs / queries
       if ($totalResults > 0) {
         foreach ($this->categories as $categ) {
           $active_html_others = ""; //do not inherit from previous loop...
@@ -419,14 +419,11 @@ class GoogleSiteSearch {
     }
 
     if($totalResults !== 0) {
-      $html .= t('Shows') . ' ' . $show_start . ' ' . t('to') . ' ' . $show_end . ' ' . t('of') . ' ';
-      $html .= t('approximately') . ' ' . $totalResults . ' ' . t('hits');
+      $html .= t('Shows @show_start to @show_end of approximately @totalResults hits', array('@show_start' => $show_start, '@show_end' => $show_end, '@totalResults' => $totalResults));
     }
 
     $html .= '</div>';
-
     // return search head
     return $html;
   }
-
 }
