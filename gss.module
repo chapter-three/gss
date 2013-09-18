@@ -54,9 +54,9 @@ function gss_settings() {
     '#default_value' => variable_get('gss_enabled', FALSE),
   );
   $form['main']['gss_api_key'] = array(
-    '#title' => t('API Key'),
+    '#title' => t('Search engine unique ID'),
     '#type' => 'textfield',
-    '#description' => t('Your Google Site Search API key. If no key is given, the module will not work and will be disabled.'),
+    '#description' => t('Your Search engine unique ID. If no ID is given, the module will not work and will be disabled.'),
     '#default_value' => variable_get('gss_api_key', ''),
 //    '#required' => TRUE,
   );
@@ -107,16 +107,16 @@ function gss_settings() {
   $form['miscellaneous']['gss_pager_size'] = array(
     '#title' => t('Pager size'),
     '#type' => 'textfield',
-    '#description' => t('Number of pages to show in the pager. Imput ONLY odd numbers like 5, 7 or 9 and NOT 6, 7 or 9, for example.'),
+    '#description' => t('Number of pages to show in the pager. Imput ONLY odd numbers like 5, 7 or 9 and NOT 6, 8 or 10, for example.'),
     '#default_value' => variable_get('gss_pager_size', 19),
     '#size' => 5,
     '#max_length' => 5,
   );
   
   $form['miscellaneous']['gss_labels'] = array(
-    '#title' => t('Enable Google Search labels'),
+    '#title' => t('Show labels'),
     '#type' => 'checkbox',
-    '#description' => t('Show "facets" and "labels" if available on the search result.'),
+    '#description' => t('Let the user filter the search result by labels. <a href="@link">Click here</a> to read more about search labels.', array('@link' => url('https://developers.google.com/custom-search/docs/ref_prebuiltlabels'))),
     '#default_value' => variable_get('gss_labels', TRUE),
   );
   

@@ -64,6 +64,12 @@ class GoogleSiteSearch {
   private $searchResultsXml = NULL;
 
   /**
+   * The allowed tags in results from Google.
+   * @var array
+   */
+  private $allowedTags = array('a', 'em', 'strong', 'cite', 'blockquote', 'code', 'ul', 'ol', 'li', 'dl', 'dt', 'dd', 'b');  
+  
+  /**
    * Create a new instance of GoogleSiteSearch.
    *
    * @param string
@@ -168,6 +174,15 @@ class GoogleSiteSearch {
   public function GetTotalPages() {
     return ($this->totalResults / $this->pageSize + 1);
   }
+  
+  /**
+   * Get the allowed HTML tags.
+   *
+   * @return array The allowed HTML tags.
+   */
+  public function GetAllowedTags() {
+    return $this->allowedTags;
+  }
 
   /**
    * Get query current search.
@@ -243,14 +258,14 @@ class GoogleSiteSearch {
       }
       else {
         // save total results
-        $this->totalResults = intval((string) $results->RES->M);
+        $this->totalResults = intval(check_plain((string) $results->RES->M));
 
         // store faceted items in order to use them later in the header
         $categories = array();
         foreach ($results->Context->Facet as $facet) {
           $categories[] = array(
-            'label' => (string) $facet->FacetItem->label,
-            'anchor_text' => (string) $facet->FacetItem->anchor_text,
+            'label' => check_plain((string) $facet->FacetItem->label),
+            'anchor_text' => check_plain((string) $facet->FacetItem->anchor_text),
           );
         }
         $this->categories = $categories;
@@ -262,9 +277,9 @@ class GoogleSiteSearch {
         foreach ($results->RES->R as $result) {
           // init result array
           $item = array();
-          $item['title'] = (string) $result->T;
-          $item['url'] = (string) $result->UE;
-          $item['description'] = (string) $result->S;
+          $item['title'] = filter_xss((string) $result->T, $this->GetAllowedTags());
+          $item['url'] = check_url((string) $result->UE);
+          $item['description'] = filter_xss((string) $result->S, $this->GetAllowedTags());
           // let's get the image thumbnail - present in PageMap->DataObject['type'] == cse_thumbnail
           if (isset($result->PageMap->DataObject)) {
             foreach ($result->PageMap->DataObject as $do) {
@@ -274,7 +289,7 @@ class GoogleSiteSearch {
                   foreach ($do->Attribute as $att) {
                     switch ((string) $att['name']) {
                       case 'src':
-                        $item['thumbnail_url'] = (string) $att['value'];
+                        $item['thumbnail_url'] = check_url((string) $att['value']);
                         break;
                     }
                   }
