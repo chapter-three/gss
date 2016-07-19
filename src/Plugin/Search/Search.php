@@ -37,6 +37,13 @@ class Search extends ConfigurableSearchPluginBase implements AccessibleInterface
   protected $count;
 
   /**
+   * Labels (facets) for the current search.
+   *
+   * @var object
+   */
+  protected $labels;
+
+  /**
    * The language manager.
    *
    * @var \Drupal\Core\Language\LanguageManagerInterface
@@ -106,8 +113,7 @@ class Search extends ConfigurableSearchPluginBase implements AccessibleInterface
       // "autocomplete" => TRUE,
       "page_size" => 10,
       "pager_size" => 9,
-      // @todo labels
-      // "labels" => TRUE,
+      "labels" => TRUE,
       // @todo number_of_results
       // "number_of_results" => TRUE,
       // @todo info
@@ -180,15 +186,12 @@ class Search extends ConfigurableSearchPluginBase implements AccessibleInterface
       '#max_length' => 5,
     );
 
-    // @todo labels
-    /*
     $form['miscellaneous']['labels'] = array(
       '#title' => $this->t('Show labels'),
       '#type' => 'checkbox',
-      '#description' => $this->t('Let the user filter the search result by labels. @link', ['@link' => Link::fromTextAndUrl($this->t('Read more about search labels.'), Url::fromUri('https://developers.google.com/custom-search/docs/ref_prebuiltlabels'))]),
+      '#description' => $this->t('Let the user filter the search result by labels. <a href=":search-labels">Read more about search labels</a>.', [':search-labels' => 'https://developers.google.com/custom-search/docs/ref_prebuiltlabels']),
       '#default_value' => $this->configuration['labels'],
     );
-    */
 
     // @todo number_of_results
     /*
@@ -225,8 +228,7 @@ class Search extends ConfigurableSearchPluginBase implements AccessibleInterface
       // 'autocomplete',
       'page_size',
       'pager_size',
-      // @todo labels
-      // 'labels',
+      'labels',
       // @todo number_of_results
       // 'number_of_results',
       // @todo info
@@ -302,6 +304,37 @@ class Search extends ConfigurableSearchPluginBase implements AccessibleInterface
       else {
         break;
       }
+      $response->context->facets = [
+        [
+          (object) [
+            "label" => "facet 0-0 label",
+            "anchor" => "facet 0-0 anchor",
+            "label_with_op" => "facet 0-0 label_with_op",
+          ],
+          (object) [
+            "label" => "facet 0-1 label",
+            "anchor" => "facet 0-1 anchor",
+            "label_with_op" => "facet 0-1 label_with_op",
+          ],
+        ],
+        [
+          (object) [
+            "label" => "facet 1-0 label",
+            "anchor" => "facet 1-0 anchor",
+            "label_with_op" => "facet 1-0 label_with_op",
+          ],
+          (object) [
+            "label" => "facet 1-1 label",
+            "anchor" => "facet 1-1 anchor",
+            "label_with_op" => "facet 1-1 label_with_op",
+          ],
+        ],
+      ];
+      if ($this->configuration['labels'] &&
+          !empty($response->context->facets)
+      ) {
+        $this->labels = $response->context->facets;
+      }
     }
 
     return $items;
@@ -372,6 +405,25 @@ class Search extends ConfigurableSearchPluginBase implements AccessibleInterface
       ];
     }
     return $results;
+  }
+
+  /**
+   * Gets render array for labels.
+   */
+  public function getLabels() {
+    $labels = [
+      '#title' => $this->t('Show only results of type:'),
+      '#type' => 'container',
+    ];
+    foreach ($this->labels as $facet_set) {
+      foreach ($facet_set as $facet) {
+//        $labels[] = [
+//          '#title' => $facet->,
+//          '#type' => 'link',
+//          '#url' => ,
+//        ]
+      }
+    }
   }
 
 }

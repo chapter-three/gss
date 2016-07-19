@@ -27,6 +27,7 @@ class RouteSubscriber extends RouteSubscriberBase {
           'Drupal\gss\Controller\GssSearchController::view');
       }
     }
+
   }
 
 }
